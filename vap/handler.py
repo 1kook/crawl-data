@@ -32,44 +32,62 @@ def getData(days=14):
     return df
 
 def resampleTimeframe(df, tf):
-    while (df.index[-1].minute + 1) % tf != 0:
-        df.loc[df.index[-1] + pd.Timedelta(minutes=1)] = df.iloc[-1]
+    df = df.copy()
 
-    dtf = df.resample(str(tf)+'Min').ffill()
-    dtf = dtf.dropna()
-    
-    for index, row in dtf.iterrows():
-        dtf.at[index, 'high_price'] = df.loc[index:index +
-                                            pd.Timedelta(minutes=tf)]['high_price'].max()
-        dtf.at[index, 'low_price'] = df.loc[index:index +
-                                            pd.Timedelta(minutes=tf)]['low_price'].min()
-        dtf.at[index, 'volume'] = df.loc[index:index +
-                                        pd.Timedelta(minutes=tf)]['volume'].sum()
-        dtf.at[index, 'close_price'] = df.loc[index +
-                                            pd.Timedelta(minutes=tf-1)]['close_price']
-        dtf.at[index, 'close_time'] = df.loc[index +
-                                            pd.Timedelta(minutes=tf-1)]['close_time']
-        
+    last_index_minute = df.index[-1].minute
+    minutes_to_adjust = (tf - (last_index_minute + 1) % tf) % tf
+
+    if minutes_to_adjust > 0:
+        last_row = df.iloc[-1]
+        for _ in range(minutes_to_adjust):
+            df.loc[df.index[-1] + pd.Timedelta(minutes=1)] = last_row
+
+    dtf = df.resample(str(tf)+'Min').agg({
+        'open_price': 'first',
+        'high_price': 'max',
+        'low_price': 'min',
+        'volume': 'sum',
+        'close_price': lambda x: x.iloc[-1],
+        'close_time': lambda x: x.iloc[-1]
+    }).dropna()
+
     return dtf
 
+# def calVolumeProfile(data, bin_size=10):
+#     vap = pd.DataFrame(columns=['price', 'volume'])
+#     vap.set_index('price')
+
+#     for i in range(0, len(data)-1):
+#         price = data.iloc[i]['close_price']
+#         volume = data.iloc[i]['volume']
+#         vap.loc[len(vap)] = [price, volume]
+
+#     # cal histogram
+#     bins = np.arange(vap['price'].min(), vap['price'].max(), bin_size)
+#     vap['bin'] = pd.cut(vap['price'], bins)
+#     vap = vap.groupby('bin').sum()
+
+#     new_index = []
+#     for index in vap.index:
+#         new_index.append(index.mid)
+
+#     vap.index = new_index
+
+#     return vap
+
 def calVolumeProfile(data, bin_size=10):
-    vap = pd.DataFrame(columns=['price', 'volume'])
-    vap.set_index('price')
+    price = data['close_price']
+    volume = data['volume']
+    
+    # Calculate histogram
+    bins = np.arange(price.min(), price.max(), bin_size)
+    bin_labels = pd.cut(price, bins)
 
-    for i in range(0, len(data)-1):
-        price = data.iloc[i]['close_price']
-        volume = data.iloc[i]['volume']
-        vap.loc[len(vap)] = [price, volume]
-
-    # cal histogram
-    bins = np.arange(vap['price'].min(), vap['price'].max(), bin_size)
-    vap['bin'] = pd.cut(vap['price'], bins)
+    vap = pd.DataFrame({'price': price, 'volume': volume, 'bin': bin_labels})
     vap = vap.groupby('bin').sum()
 
-    new_index = []
-    for index in vap.index:
-        new_index.append(index.mid)
-
+    # Update index
+    new_index = [bin.mid for bin in vap.index]
     vap.index = new_index
 
     return vap
