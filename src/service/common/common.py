@@ -5,22 +5,31 @@ from plotly.subplots import make_subplots
 import datetime
 import numpy as np
 import psycopg2
+from cachetools import TTLCache
+from sqlalchemy import create_engine, select
+
 
 class CommonService:
     def __init__(self, DB_CON):
-        self.DB_CON = psycopg2.connect(DB_CON)
+        db = create_engine(DB_CON)
+        conn = db.connect()
+        self.DB_CON = conn
+        self.cache = TTLCache(maxsize=10, ttl=60)
 
     def getData(self, days=14):
-        print(self.DB_CON)
+        if days in self.cache:
+            return self.cache[days]
+        
         fromDate = datetime.datetime.now() - datetime.timedelta(days=days)
-
         df = pd.read_sql_query(
-            'SELECT * FROM btc_price WHERE open_time > %s', self.DB_CON, params=(fromDate,))
+            "SELECT * FROM btc_price WHERE open_time >= %s", self.DB_CON, params=(fromDate,))
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms', utc=False)
         df['close_time'] = pd.to_datetime(
             df['close_time'], unit='ms', utc=False)
         df = df.set_index('open_time')
         df = df.resample('1MIN').ffill()
+        
+        self.cache[days] = df
 
         return df
 
@@ -49,12 +58,13 @@ class CommonService:
     def calVolumeProfile(self, df, bin_size=10):
         price = df['close_price']
         volume = df['volume']
-        
+
         # Calculate histogram
         bins = np.arange(price.min(), price.max(), bin_size)
         bin_labels = pd.cut(price, bins)
 
-        vap = pd.DataFrame({'price': price, 'volume': volume, 'bin': bin_labels})
+        vap = pd.DataFrame(
+            {'price': price, 'volume': volume, 'bin': bin_labels})
         vap = vap.groupby('bin').sum()
 
         # Update index

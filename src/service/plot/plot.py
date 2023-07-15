@@ -7,16 +7,17 @@ from plotly.subplots import make_subplots
 class PlotService:
     fig = None
 
-    def __init__(self):
+    def __init__(self, row_witdth = [0.15, 0.85]):
         self.fig = make_subplots(
             rows=2,
             cols=2,
             vertical_spacing=0.07,
-            subplot_titles=('VAP', 'OHLC', '', 'Volume'),
-            row_width=[0.15, 0.85],
+            subplot_titles=('VAP', 'OHLC', '', ''),
+            row_width=row_witdth,
             column_widths=[0.15, 0.85],
             horizontal_spacing=0.01,
             shared_yaxes='rows',
+            shared_xaxes='columns',
         )
 
     def drawCommon(self, df, vp):

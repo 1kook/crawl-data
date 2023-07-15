@@ -81,3 +81,5 @@ def drawVpPlot(self, plot: PlotService):
             fillcolor='rgba(181, 181, 181, 0.2)',
             row=1, col=2
         )
+        
+    return self
