@@ -27,40 +27,29 @@ def drawMacd(self, plot):
     # draw macd
     plot.fig.for_each_trace(lambda trace: trace.update(visible=False) if trace.name == "volume" else ())
     
-    #draw and fill green and red bar    
     plot.fig.add_trace(
-        go.Bar(
+        go.Scatter(
             x=self.macd.index,
-            y=self.macd["macd"].where(self.macd["macd"] > 0),
+            y=self.macd["macd"],
             name="macd",
-            marker={
-                "color": "green",
-            },
-            visible=True,
-        ), row=2, col=2
-    )
+            line=dict(color="white",)
+        ), row=2, col=2)
     
-    plot.fig.add_trace(
-        go.Bar(
-            x=self.macd.index,
-            y=self.macd["macd"].where(self.macd["macd"] < 0),
-            name="macd",
-            marker={
-                "color": "red",
-            },
-            visible=True,
-        ), row=2, col=2
-    )
-    
-    #draw macd signal
     plot.fig.add_trace(
         go.Scatter(
             x=self.macd.index,
             y=self.macd["macd_signal"],
-            name="macd signal",
-            line=dict(color="white",),
-            visible=True,
-        ), row=2, col=2
-    )
+            name="macd_signal",
+            line=dict(color="blue",)
+        ), row=2, col=2)
+    
+    plot.fig.add_trace(
+        go.Bar(
+            x=self.macd.index,
+            y=self.macd["macd"] - self.macd["macd_signal"],
+            name="macd_histogram",
+            marker_color=np.where(self.macd["macd"] - self.macd["macd_signal"] > 0, "green", "red")
+        ), row=2, col=2)
+    
 
     return self

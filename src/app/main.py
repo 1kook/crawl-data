@@ -38,7 +38,7 @@ async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: 
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
-    plot = PlotService()
+    plot = PlotService([0.5, 0.5])
     plot.drawCommon(dtf, vp)
 
     Indicator(df).calVpActionArea(vp).drawVpPlot(plot)
