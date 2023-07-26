@@ -59,4 +59,5 @@ def crawlPrice(symbol, stopThreads):
 
                 checkpoint = el[0]+60*1000
                 print(f"{symbol} - {data['open_time']} - {data['close_time']}")
-        time.sleep(5)
+        if (len(kline) < 10):
+            time.sleep(5)
