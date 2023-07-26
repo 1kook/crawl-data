@@ -22,20 +22,20 @@ def sigintHandler(signum, frame):
 @app.on_event('startup')
 async def startup_event():
     global stopThreads
-    # thread1 = threading.Thread(
-    #     target=crawl.crawlPrice, args=("BTC", stopThreads,))
-    # thread2 = threading.Thread(
-    #     target=crawl.crawlPrice, args=("ETH", stopThreads,))
-    # thread3 = threading.Thread(
-    #     target=crawl.crawlPrice, args=("ADA", stopThreads,))
+    thread1 = threading.Thread(
+        target=crawl.crawlPrice, args=("BTC", stopThreads,))
+    thread2 = threading.Thread(
+        target=crawl.crawlPrice, args=("ETH", stopThreads,))
+    thread3 = threading.Thread(
+        target=crawl.crawlPrice, args=("ADA", stopThreads,))
     thread4 = threading.Thread(
         target=crawl.crawlPrice, args=("MATIC", stopThreads,))
 
     signal.signal(signal.SIGINT, sigintHandler)
 
-    # thread1.start()
-    # thread2.start()
-    # thread3.start()
+    thread1.start()
+    thread2.start()
+    thread3.start()
     thread4.start()
 
 
