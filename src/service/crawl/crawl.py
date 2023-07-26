@@ -59,4 +59,4 @@ def crawlPrice(symbol, stopThreads):
 
                 checkpoint = el[0]+60*1000
                 print(f"{symbol} - {data['open_time']} - {data['close_time']}")
-        time.time(5)
+        time.sleep(5)
