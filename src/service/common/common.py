@@ -11,12 +11,11 @@ from sqlalchemy import create_engine, select
 
 class CommonService:
     def __init__(self, DB_CON):
-        db = create_engine(DB_CON)
-        conn = db.connect()
-        self.DB_CON = conn
+        self.db = create_engine(DB_CON)
+        self.DB_CON = self.db.connect()
         self.cache = TTLCache(maxsize=10, ttl=60)
 
-    def getData(self, days=14):
+    def getData(self, days=14.0):
         if days in self.cache:
             return self.cache[days]
         

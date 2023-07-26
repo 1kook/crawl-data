@@ -1,25 +1,25 @@
+from datetime import datetime
 import os
 from dotenv import load_dotenv
-from fastapi.responses import PlainTextResponse
-from fastapi import FastAPI, Response
-import pandas as pd
+from fastapi.responses import HTMLResponse, PlainTextResponse
+from fastapi import FastAPI, Request, Response, APIRouter
 
 from src.service.common.common import CommonService
 from src.service.indicator.indicator import Indicator
 from src.service.plot.plot import PlotService
 
 load_dotenv()
-
-app = FastAPI()
 common = CommonService(os.getenv('CONNECTION'))
 
+router = APIRouter()
 
-@app.get("/", response_class=PlainTextResponse)
+@router.get("/")
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/plot")
-async def vap(d: int = 14, tf: int = 60):
+
+@router.get("/plot")
+async def vap(request: Request, d: int = 14, tf: int = 60):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
@@ -32,7 +32,7 @@ async def vap(d: int = 14, tf: int = 60):
     return Response(content=plot.exportHtml(), media_type="text/html")
 
 
-@app.get("/plot/ema")
+@router.get("/plot/ema")
 async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: int = 9):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
@@ -47,7 +47,7 @@ async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: 
     return Response(content=plot.exportHtml(), media_type="text/html")
 
 
-@app.get("/plot/atrbb")
+@router.get("/plot/atrbb")
 async def atrbb(d: int = 14, tf: int = 60, atr: int = 14, bb: int = 20, bb_std: int = 2):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
@@ -62,7 +62,7 @@ async def atrbb(d: int = 14, tf: int = 60, atr: int = 14, bb: int = 20, bb_std: 
     return Response(content=plot.exportHtml(), media_type="text/html")
 
 
-@app.get("/plot/rsi")
+@router.get("/plot/rsi")
 async def rsi(d: int = 14, tf: int = 60, rsi: int = 14):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
@@ -76,7 +76,7 @@ async def rsi(d: int = 14, tf: int = 60, rsi: int = 14):
     return Response(content=plot.exportHtml(), media_type="text/html")
 
 
-@app.get("/plot/adx")
+@router.get("/plot/adx")
 async def adx(d: int = 14, tf: int = 60, adx: int = 14):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
@@ -90,7 +90,7 @@ async def adx(d: int = 14, tf: int = 60, adx: int = 14):
     return Response(content=plot.exportHtml(), media_type="text/html")
 
 
-@app.get("/plot/obv")
+@router.get("/plot/obv")
 async def obv(d: int = 14, tf: int = 60):
     df = common.getData(d)
     dtf = common.resampleTimeframe(df, tf)
