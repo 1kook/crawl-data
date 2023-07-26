@@ -57,5 +57,6 @@ def crawlPrice(symbol, stopThreads):
                 conn.commit()
                 cursor.close()
 
-                checkpoint = data["close_time"]
+                checkpoint = el[0]+60*1000
                 print(f"{symbol} - {data['open_time']} - {data['close_time']}")
+        time.time(5)
