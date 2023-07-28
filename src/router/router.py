@@ -13,14 +13,15 @@ common = CommonService(os.getenv('CONNECTION'))
 
 router = APIRouter()
 
+
 @router.get("/")
 async def root():
     return {"message": "Hello World"}
 
 
 @router.get("/plot")
-async def vap(request: Request, d: int = 14, tf: int = 60):
-    df = common.getData(d)
+async def vap(request: Request, d: int = 14, tf: int = 60, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
@@ -33,8 +34,8 @@ async def vap(request: Request, d: int = 14, tf: int = 60):
 
 
 @router.get("/plot/ema")
-async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: int = 9):
-    df = common.getData(d)
+async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: int = 9, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
@@ -48,8 +49,8 @@ async def vap(d: int = 14, tf: int = 60, fast: int = 7, slow: int = 26, signal: 
 
 
 @router.get("/plot/atrbb")
-async def atrbb(d: int = 14, tf: int = 60, atr: int = 14, bb: int = 20, bb_std: int = 2):
-    df = common.getData(d)
+async def atrbb(d: int = 14, tf: int = 60, atr: int = 14, bb: int = 20, bb_std: int = 2, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
@@ -63,8 +64,8 @@ async def atrbb(d: int = 14, tf: int = 60, atr: int = 14, bb: int = 20, bb_std: 
 
 
 @router.get("/plot/rsi")
-async def rsi(d: int = 14, tf: int = 60, rsi: int = 14):
-    df = common.getData(d)
+async def rsi(d: int = 14, tf: int = 60, rsi: int = 14, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
@@ -77,8 +78,8 @@ async def rsi(d: int = 14, tf: int = 60, rsi: int = 14):
 
 
 @router.get("/plot/adx")
-async def adx(d: int = 14, tf: int = 60, adx: int = 14):
-    df = common.getData(d)
+async def adx(d: int = 14, tf: int = 60, adx: int = 14, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 
@@ -91,8 +92,8 @@ async def adx(d: int = 14, tf: int = 60, adx: int = 14):
 
 
 @router.get("/plot/obv")
-async def obv(d: int = 14, tf: int = 60):
-    df = common.getData(d)
+async def obv(d: int = 14, tf: int = 60, symbol: str = "BTC"):
+    df = common.getData(symbol, d)
     dtf = common.resampleTimeframe(df, tf)
     vp = common.calVolumeProfile(df, 50)
 

@@ -15,13 +15,15 @@ class CommonService:
         self.DB_CON = self.db.connect()
         self.cache = TTLCache(maxsize=10, ttl=60)
 
-    def getData(self, days=14.0):
+    def getData(self, symbol: str ,days=14.0):
         if days in self.cache:
             return self.cache[days]
         
         fromDate = datetime.datetime.now() - datetime.timedelta(days=days)
+        # df = pd.read_sql_query(
+            # "SELECT * FROM btc_price WHERE open_time >= %s", self.DB_CON, params=(fromDate,))
         df = pd.read_sql_query(
-            "SELECT * FROM btc_price WHERE open_time >= %s", self.DB_CON, params=(fromDate,))
+            "SELECT * FROM %s_price WHERE open_time >= %s", self.DB_CON, params=(symbol.lower(), fromDate,))
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms', utc=False)
         df['close_time'] = pd.to_datetime(
             df['close_time'], unit='ms', utc=False)
