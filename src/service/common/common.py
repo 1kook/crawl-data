@@ -16,8 +16,9 @@ class CommonService:
         self.cache = TTLCache(maxsize=10, ttl=60)
 
     def getData(self, symbol: str ,days=14.0):
-        if days in self.cache:
-            return self.cache[days]
+        cacheKey = f"{symbol}-{days}"
+        if cacheKey in self.cache:
+            return self.cache[cacheKey]
         
         fromDate = datetime.datetime.now() - datetime.timedelta(days=days)
         # df = pd.read_sql_query(
@@ -30,7 +31,7 @@ class CommonService:
         df = df.set_index('open_time')
         df = df.resample('1MIN').ffill()
         
-        self.cache[days] = df
+        self.cache[cacheKey] = df
 
         return df
 
