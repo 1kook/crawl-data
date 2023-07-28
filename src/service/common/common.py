@@ -23,7 +23,7 @@ class CommonService:
         # df = pd.read_sql_query(
             # "SELECT * FROM btc_price WHERE open_time >= %s", self.DB_CON, params=(fromDate,))
         df = pd.read_sql_query(
-            "SELECT * FROM %s_price WHERE open_time >= %s", self.DB_CON, params=(symbol.lower(), fromDate,))
+            f"SELECT * FROM {symbol.lower()}_price WHERE open_time >= %s", self.DB_CON, params=(fromDate,))
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms', utc=False)
         df['close_time'] = pd.to_datetime(
             df['close_time'], unit='ms', utc=False)
