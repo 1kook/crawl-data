@@ -1,4 +1,5 @@
 import asyncio
+import os
 import signal
 import threading
 import uvicorn
@@ -22,21 +23,20 @@ def sigintHandler(signum, frame):
 @app.on_event('startup')
 async def startup_event():
     global stopThreads
-    thread1 = threading.Thread(
-        target=crawl.crawlPrice, args=("BTC", stopThreads,))
-    thread2 = threading.Thread(
-        target=crawl.crawlPrice, args=("ETH", stopThreads,))
-    thread3 = threading.Thread(
-        target=crawl.crawlPrice, args=("ADA", stopThreads,))
-    thread4 = threading.Thread(
-        target=crawl.crawlPrice, args=("MATIC", stopThreads,))
+    
+    symbolList = os.getenv('SYMBOL_LIST').split(',')
+    for symbol in symbolList:
+        #start threads
+        thread = threading.Thread(
+            target=crawl.crawlPrice, args=(symbol, stopThreads,))
+        thread.start()
 
-    signal.signal(signal.SIGINT, sigintHandler)
-
-    thread1.start()
-    thread2.start()
-    thread3.start()
-    thread4.start()
+@app.on_event('shutdown')
+async def shutdown_event():
+    global stopThreads
+    stopThreads[0] = True
+    print("Waiting for threads to finish...")
+    # wait for threads to finish
 
 
 def main():
