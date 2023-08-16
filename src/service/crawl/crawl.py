@@ -33,7 +33,7 @@ def crawlPrice(symbol, stopThreads):
             kline = exchange.fetch_ohlcv(f"{symbol.upper()}/USDT", '1m', since=checkpoint)
         except Exception as e:
             print(e)
-            time.sleep(10)
+            time.sleep(3)
             continue
         
         if len(kline) > 1:
@@ -60,4 +60,4 @@ def crawlPrice(symbol, stopThreads):
                 checkpoint = el[0]+60*1000
                 print(f"{symbol} - {data['open_time']} - {data['close_time']}")
         if (len(kline) < 10):
-            time.sleep(5)
+            time.sleep(1)
