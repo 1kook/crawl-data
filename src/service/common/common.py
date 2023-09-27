@@ -37,8 +37,8 @@ class CommonService:
 
     def resampleTimeframe(self, df, tf):
         df = df.copy()
-
-        last_index_minute = df.index[-1].minute
+        
+        last_index_minute = int(df.index[-1].timestamp() / 60)
         minutes_to_adjust = (tf - (last_index_minute + 1) % tf) % tf
 
         if minutes_to_adjust > 0:
