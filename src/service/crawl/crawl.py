@@ -5,37 +5,49 @@ import psycopg2
 from dotenv import load_dotenv
 import pandas as pd
 import ccxt
-import telebot
+from datetime import datetime
 
 load_dotenv()
 conn = psycopg2.connect(os.getenv('CONNECTION'))
-bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 
 # bot.send_message(os.getenv('CHAT_ID'), 'App started')
 # load checkpoint from file txt
+
+
 def crawlPrice(symbol, stopThreads):
     checkpoint = 0
-    #get last checkpoint from db
+    # get last checkpoint from db
     cursor = conn.cursor()
-    cursor.execute(f"SELECT close_time  AT TIME ZONE 'UTC' FROM {symbol.lower()}_price ORDER BY open_time DESC LIMIT 1")
+    cursor.execute(
+        f"SELECT close_time  AT TIME ZONE 'UTC' FROM {symbol.lower()}_price ORDER BY open_time DESC LIMIT 1")
     if cursor.rowcount > 0:
         checkpoint = cursor.fetchone()[0]
-        #convert to timestamp
+        # convert to timestamp
         checkpoint = int(checkpoint.timestamp() * 1000)
     else:
-        checkpoint = 1546300800000
+        checkpoint = int(datetime.now().replace(month=1, day=1, hour=0, minute=0,
+                                            second=0, microsecond=0).timestamp() * 1000)
     cursor.close()
 
-    exchange = ccxt.binance()
+    binance = ccxt.binance()
+    bybit = ccxt.bybit()
 
     while True:
+        if stopThreads[0]:
+            return
+
         try:
-            kline = exchange.fetch_ohlcv(f"{symbol.upper()}/USDT", '1m', since=checkpoint)
+            if symbol.upper() != 'PAXG':
+                kline = binance.fetch_ohlcv(
+                    f"{symbol.upper()}/USDT", '1m', since=checkpoint)
+            else:
+                kline = bybit.fetch_ohlcv(
+                    f"PAXGUSDT", '5m', since=checkpoint)
         except Exception as e:
             print(e)
             time.sleep(3)
             continue
-        
+
         if len(kline) > 1:
             kline = kline[:-1]
             for el in kline:
@@ -51,9 +63,10 @@ def crawlPrice(symbol, stopThreads):
                     'volume': float(el[5]),
                     'close_time': pd.to_datetime(el[0]+60*1000, unit='ms'),
                 }
-                
+
                 cursor = conn.cursor()
-                cursor.execute(f"INSERT INTO {symbol.lower()}_price (open_time, open_price, high_price, low_price, close_price, volume, close_time, quote_asset_volume) VALUES ('{data['open_time']}', {data['open']}, {data['high']}, {data['low']}, {data['close']}, {data['volume']}, '{data['close_time']}', 0)")
+                cursor.execute(
+                    f"INSERT INTO {symbol.lower()}_price (open_time, open_price, high_price, low_price, close_price, volume, close_time, quote_asset_volume) VALUES ('{data['open_time']}', {data['open']}, {data['high']}, {data['low']}, {data['close']}, {data['volume']}, '{data['close_time']}', 0)")
                 conn.commit()
                 cursor.close()
 
