@@ -39,10 +39,10 @@ def crawlPrice(symbol, stopThreads):
         try:
             if symbol.upper() != 'PAXG':
                 kline = binance.fetch_ohlcv(
-                    f"{symbol.upper()}/USDT", '1m', since=checkpoint)
+                    f"{symbol.upper()}/USDT", '15m', since=checkpoint)
             else:
                 kline = bybit.fetch_ohlcv(
-                    f"PAXGUSDT", '5m', since=checkpoint)
+                    f"PAXGUSDT", '15m', since=checkpoint)
         except Exception as e:
             print(e)
             time.sleep(3)
