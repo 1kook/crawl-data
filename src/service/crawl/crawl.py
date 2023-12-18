@@ -39,7 +39,7 @@ def crawlPrice(symbol, stopThreads):
         try:
             if symbol.upper() != 'PAXG':
                 kline = binance.fetch_ohlcv(
-                    f"{symbol.upper()}/USDT", '15m', since=checkpoint)
+                    f"{symbol.upper()}USDT", '5m', since=checkpoint)
             else:
                 kline = bybit.fetch_ohlcv(
                     f"PAXGUSDT", '15m', since=checkpoint)
