@@ -24,9 +24,9 @@ def crawlPrice(symbol, stopThreads):
         checkpoint = cursor.fetchone()[0]
         # convert to timestamp
         checkpoint = int(checkpoint.timestamp() * 1000)
-    else:
-        checkpoint = int(datetime.now().replace(month=1, day=1, hour=0, minute=0,
-                                            second=0, microsecond=0).timestamp() * 1000)
+    else: 
+        # set checkpoint to 1/1/2018
+        checkpoint = 1514764800000
     cursor.close()
 
     binance = ccxt.binance()
