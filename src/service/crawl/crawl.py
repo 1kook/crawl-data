@@ -42,7 +42,7 @@ def crawlPrice(symbol, stopThreads):
                     f"{symbol.upper()}USDT", '5m', since=checkpoint)
             else:
                 kline = bybit.fetch_ohlcv(
-                    f"PAXGUSDT", '15m', since=checkpoint)
+                    f"PAXGUSDT", '5m', since=checkpoint)
         except Exception as e:
             print(e)
             time.sleep(3)
@@ -61,7 +61,7 @@ def crawlPrice(symbol, stopThreads):
                     'low': float(el[3]),
                     'close': float(el[4]),
                     'volume': float(el[5]),
-                    'close_time': pd.to_datetime(el[0]+60*1000, unit='ms'),
+                    'close_time': pd.to_datetime(el[0]+5*60*1000, unit='ms'),
                 }
 
                 cursor = conn.cursor()
